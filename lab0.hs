@@ -1,7 +1,5 @@
- --Тут не хватает filter test и zip,
- --потому что остались вопросы по их реализации.
- 
  get' :: [b] -> Integer -> b
+ get' [] _ = error "No such element."
  get' (x:xs) 0 = x
  get' (x:xs) n = get' xs (n-1)
  
@@ -70,10 +68,17 @@
          elem'' n (x:xs) y = if x == y then elem'' 1 xs y 
                              else elem'' 0 xs y  
 
- --filter test'
+ filter' :: (a -> Bool) -> [a] -> [a]
+ filter' test [] = []
+ filter' test (x:xs) = if (test x) == True
+                      then x:filter' test xs
+                      else filter' test xs
 
  map' :: (a -> b) -> [a] -> [b]
  map' f [] = []
  map' f (x:xs) = f x : map f xs
 
- --zip'
+ zip' :: [a] -> [a] -> [(a,a)]
+ zip' [] _ = []
+ zip' _ [] = []
+ zip' (x:xs) (y:ys) = (x,y):(zip' xs ys)
