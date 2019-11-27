@@ -59,7 +59,7 @@
  fromPairList ((comp,str):cs) = (QState comp str):(fromPairList cs)
  
  --scalarProduct :: Qubit a -> Qubit a -> a
- --scalarProduct = 
+ --scalarProduct [] = []
  --scalarProduct = 
  
  --entagle :: Qubit a -> Qubit a -> Qubit a
