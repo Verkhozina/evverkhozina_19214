@@ -1,43 +1,39 @@
---Сначала я хотела реализовать всё на списках, но в процессе вспомнила, что в хаскеле нет переменных.
---Таким образом я пока что не понимаю, как реализовать работу с хранилищем музыки и пользователей,
---если фактически не могу менять ни у чего значений.
 
+ type Name = String
+ type Track = Name
 
- data Track = Track {
-     name :: [Char],
-     album :: [Char],
-     group :: [Char]
+ data Playlist = Playlist {
+     playlistName :: Name,
+     tracks :: [Track]
+ } deriving (Show, Eq)
+
+ type Album = Playlist
+
+ data Artist = Artist {
+     artistName :: Name,
+     albums :: [Album]
  } deriving (Show, Eq)
 
  data User = User {
-     login :: [Char],
+     login :: String,
      password :: [Int],
-     fav :: [Track]
+     fav :: Playlist
  } deriving (Show, Eq)
 
- existingMusic :: [Track]
- existingMusic = [Track "The Greatest Show" "Panic At The Disco" "Original Motion Picture Soundtrack", Track "The Nobodies" "Marilyn Manson" "Holy Wood", Track "Feeling Good" "Muse" "Origin of Symmetry"]
- 
- searchByName :: String -> [Track]
- searchByName x = search x existingMusic []
-     where
-         search x [] [] = error "Nothing found"
-         search x [] ys = ys
-         search x (Track n g a:xs) ys = if x == n then search x xs (Track n g a:ys) else search x xs ys
- 
- searchByGroup :: String -> [Track]
- searchByGroup x = search x existingMusic []
-     where
-         search x [] [] = error "Nothing found"
-         search x [] ys = ys
-         search x (Track n g a:xs) ys = if x == g then search x xs (Track n g a:ys) else search x xs ys
+ search :: Track -> [Track] -> [Track]
+ search t ts = filter (\x -> if x == t then True else False) ts
 
- searchByAlbum :: String -> [Track]
- searchByAlbum x = search x existingMusic []
-     where
-         search x [] [] = error "Nothing found"
-         search x [] ys = ys
-         search x (Track n g a:xs) ys = if x == a then search x xs (Track n g a:ys) else search x xs ys
- 
- addToFav :: Track -> User -> [Track]
- addToFav t (User name age fav) = (t:fav)
+ playlistSearch :: Track -> [Playlist] -> [(Name, Track)]
+ playlistSearch t [] = []
+ playlistSearch t ((Playlist n ts):ps) = if (elem t ts)
+                                         then ((n, t)):(playlistSearch t ps)
+                                         else playlistSearch t ps
+
+ globalSearch :: Track -> [Artist] -> [(Name, Track)]
+ globalSearch t [] = []
+ globalSearch t ((Artist n ps):as) = if (playlistSearch t ps /= [])
+                                        then ((n, t)):(globalSearch t as)
+                                        else globalSearch t as
+
+ addToFav :: Track -> User -> Playlist
+ addToFav t (User name age (Playlist n ts)) = Playlist n (t:ts)
