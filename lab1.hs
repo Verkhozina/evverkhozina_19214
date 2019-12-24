@@ -1,17 +1,11 @@
-   
- import Data.Char
-
- -- Возведение в степень:
+ --Остался вопрос по отрицательным числам.
  
- step :: Int -> Int -> Int
- step a 0 = 1
- step a b = a * (step a (b-1))
+ import Data.Char
 
  -- Функции для системы с основанием 1:
  
  toTuring :: [Char] -> Int -> [Char]
- toTuring ys 0 = ('1':ys)
- toTuring ys s = toTuring ('1':ys) (s-1)
+ toTuring ys s = (replicate s '1') ++ "1"
 
  fromTuring :: [Char] -> Int -> Int
  fromTuring [] n = n
@@ -36,12 +30,8 @@
 
  toDecimal :: Int -> [Char] -> [Char]
  toDecimal 1  s = show (fromTuring s (-1))
- toDecimal fb s = if (fb < 62 && fb > 1) then show (toDec fb 0 (reverse s))
+ toDecimal fb s = if (fb < 62 && fb > 1) then show ((foldl (\x y -> (x + (charToInt y)) * fb) 0 s) `div` fb)
                   else error "Invalid input"
-   where
-     toDec fb n [] = 0
-     toDec fb n (x:s) = if (charToInt x) >= fb then error "Invalid input"
-                        else((step fb n) * (charToInt x)) + (toDec fb (n+1) s)
  
  fromDecimal :: Int -> [Char] -> [Char] 
  fromDecimal 1  s = toTuring [] (read s :: Int)
