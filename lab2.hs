@@ -1,4 +1,3 @@
- -- Остались вопросы касательно двух последних функций.
 
  data Complex a = Complex {
      re :: a,
@@ -14,6 +13,14 @@
  -- Пусть сравниваются по действительной части:
  instance Ord a => Ord (Complex a) where
      compare (Complex re1 im1) (Complex re2 im2) = compare re1 re2
+ 
+ instance Num a => Num (Complex a) where
+     negate (Complex re im) = Complex re (negate im)
+     (+) (Complex re1 im1) (Complex re2 im2) = Complex (re1+re2) (im1+im2)
+     (*) (Complex re1 im1) (Complex re2 im2) = Complex (re1*re2) (im1*im2)
+     fromInteger x = Complex (fromInteger x) 0
+     abs           = fmap abs
+     signum        = fmap signum
 
  instance Functor Complex where
      fmap f (Complex re im) = Complex (f re) (f im)
@@ -38,30 +45,26 @@
  type Qubit a = [QState a]
 
  toList :: Qubit a -> [Complex a]
- toList [] = []
- toList ((QState comp str):qub) = comp:(toList qub)
+ toList qub = map (\(QState comp str) -> comp) qub
 
  toLabelList :: Qubit a -> [String]
- toLabelList [] = []
- toLabelList ((QState comp str):qub) = str:(toLabelList qub)
+ toLabelList qub = map (\(QState comp str) -> str) qub
 
  fromList :: [Complex a] -> [String] -> Qubit a
- fromList [] _ = []
- fromList _ [] = []
- fromList (c:comp) (s:str) = (QState c s):(fromList comp str)
+ fromList comp str = map (\(x,y) -> QState x y) (zip comp str)    
 
  toPairList :: Qubit a -> [(Complex a,String)]
- toPairList [] = []
- toPairList ((QState comp str):qub) = (comp,str):(toPairList qub)
+ toPairList qub = map (\(QState comp str) -> (comp, str)) qub
 
  fromPairList :: [(Complex a,String)] -> Qubit a
- fromPairList [] = []
- fromPairList ((comp,str):cs) = (QState comp str):(fromPairList cs)
+ fromPairList xs = map (\(x,y) -> QState x y) xs 
  
- --scalarProduct :: Qubit a -> Qubit a -> a
- --scalarProduct [] = []
- --scalarProduct = 
+ scalarProduct :: Num a => Qubit a -> Qubit a -> a
+ scalarProduct q1 q2 = foldr (+) 0 (map (\((QState c1 s1), (QState c2 s2)) -> (prod c1 c2)) (zip q1 q2))
+     where
+         prod (Complex re1 im1) (Complex re2 im2) = (re1 * re2) + (im1 * im2)
  
- --entagle :: Qubit a -> Qubit a -> Qubit a
- --entagle [] = [] 
- --entagle ((QState comp str):qub) = (QState () ()):(entagle qub) 
+ entagle :: Num a => Qubit a -> Qubit a -> Qubit a
+ entagle qub1 qub2 = map (\((QState c1 s1), (QState c2 s2)) -> QState (prod c1 c2) (s1 ++ s2)) (zip qub1 qub2)
+     where
+         prod (Complex re1 im1) (Complex re2 im2) = Complex (re1 * re2) (im1 * im2)
