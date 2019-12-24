@@ -1,3 +1,5 @@
+-- Не до конца разобралась со считыванием из файла
+
 import Data.Char
 import Data.List
 
